@@ -18,7 +18,18 @@
         margin: auto;
         text-align: center;
     }
-   
+
+    #saida {
+        background: #ffffff;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 10px;
+        margin-top: 15px;
+        min-height: 80px;
+        text-align: left;
+        font-size: 15px;
+    }
+
     button {
         margin-top: 10px;
         padding: 10px;
@@ -37,6 +48,8 @@
 <div class="chatbox">
     <h2>Chatbot por Voz</h2>
     <button onclick="ouvir()">Falar Agora</button>
+
+    <div id="saida"><i>Aguardando interação...</i></div>
 </div>
 
 <script>
@@ -64,6 +77,14 @@ function falar(texto) {
     window.speechSynthesis.speak(discurso);
 }
 
+function mostrarTexto(usuario, resposta) {
+    const saida = document.getElementById("saida");
+    saida.innerHTML = `
+        <b>Você disse:</b> ${usuario}<br><br>
+        <b>Chatbot:</b> ${resposta}
+    `;
+}
+
 function ouvir() {
     const reconhecer = new webkitSpeechRecognition();
     reconhecer.lang = "pt-BR";
@@ -71,17 +92,18 @@ function ouvir() {
 
     reconhecer.onresult = function(event) {
         const falado = event.results[0][0].transcript.toLowerCase();
-        console.log("Usuário disse:", falado);
+        let respostaEncontrada = "Desculpe, eu não entendi a pergunta.";
 
         for (const p of perguntas) {
             const encontrou = p.chave.some(palavra => falado.includes(palavra));
             if (encontrou) {
-                falar(p.resposta);
-                return;
+                respostaEncontrada = p.resposta;
+                break;
             }
         }
+        mostrarTexto(falado, respostaEncontrada);
 
-        falar("Desculpe, eu não entendi a pergunta.");
+        falar(respostaEncontrada);
     };
 }
 </script>
